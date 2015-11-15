@@ -1,0 +1,39 @@
+/* ==========================================================================
+   Ha-Ha Anti-Framework -----------------------------------------------------
+   ========================================================================== */
+#custom_nav, #custom_nav * {
+    list-style: none;
+}
+#custom_nav {
+    margin-top: .7em;
+    float: right;
+}
+#custom_nav li {
+    float: left;
+    margin-right: 1em;
+    font-size:1.4em;
+}
+#all_files {
+    margin-top: 3em;
+}
+.fl{
+    float: left;
+}
+
+#haha {
+    float: right;
+    padding-left: 2em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

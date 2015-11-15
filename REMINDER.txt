@@ -1,0 +1,7 @@
+The README.md file is actually /test-data/index.md.
+
+To generate the README.md for github, run bash.sh
+
+DO NOT EDIT README.md DIRECTLY!!!
+
+THE BASH SCRIPT WILL ERASE ALL YOUR HARD WORK AND MAKE YOU VERY ANGRY.
