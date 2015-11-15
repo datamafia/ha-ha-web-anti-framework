@@ -89,7 +89,7 @@ if ($external_zip_url){
 }
 
 // Glob all the MD files
-$md_files = array_filter(glob($markdown_location.'*'), 'is_file');
+$md_files = array_filter(glob($markdown_location.'/*'), 'is_file');
 
 // validate file presence
 if (count($md_files) < 1){
