@@ -27,28 +27,28 @@ $all_files_info = [];
 $br = '<br />';
 
 // If Github
-if ($external_zip_url){
-    echo 'I see a github zip is defined. Let\'s see if we can do this shit'.$br;
+if ($external_zip_url) {
+    echo 'I see a github zip is defined. Let\'s see if we can do this shit' . $br;
     // name of local cached zip file
     $temp_zip = 'temp.zip';
     $temp_folder = 'temp';
     // get file name from the url
     // Pattern: https://github.com/USERNAME/REPOSITORY/archive/BRANCH.zip = "REPOSITORY-BRANCH"
     $split = explode('/', $external_zip_url);
-    $sub_split = explode('.', $split[count($split)-1]);
-    $markdown_location = $split[count($split)-3].'-'.$sub_split[count($sub_split)-2];
-    echo 'Expected folder after successful extraction per GitHub pattern = '.$markdown_location.$br;
+    $sub_split = explode('.', $split[count($split) - 1]);
+    $markdown_location = $split[count($split) - 3] . '-' . $sub_split[count($sub_split) - 2];
+    echo 'Expected folder after successful extraction per GitHub pattern = ' . $markdown_location . $br;
     $gh_zip = file_get_contents($external_zip_url);
     // delete on exist
-    if(is_file($temp_zip)){
+    if (is_file($temp_zip)) {
         unlink($temp_zip);
     }
     // Try to open / write
-    try{
-        $handle = fopen($temp_zip, 'w') or die('Cannot open file:  '.$temp_zip);
+    try {
+        $handle = fopen($temp_zip, 'w') or die('Cannot open file:  ' . $temp_zip);
         fwrite($handle, $gh_zip);
-    }catch (Exception $e) {
-        echo 'Caught exception: ',  $e->getMessage(), $br;
+    } catch (Exception $e) {
+        echo 'Caught exception: ', $e->getMessage(), $br;
         return;
     }
     // unzip
@@ -56,39 +56,142 @@ if ($external_zip_url){
     if ($zip->open($temp_zip) === TRUE) {
         $zip->extractTo($temp_folder);
         $zip->close();
-        echo 'Zip extraction succeeded.'.$br;
+        echo 'Zip extraction succeeded.' . $br;
 
     } else {
-        echo 'Zip extraction failed.'.$br;
+        echo 'Zip extraction failed.' . $br;
         return;
     }
     // is the directory there?
-    $markdown_location = $temp_folder.'/'.$markdown_location;
-    if(!is_dir($markdown_location)){
-        echo 'Expected GitHub folder missing. '.$br;
+    $markdown_location = $temp_folder . '/' . $markdown_location;
+    if (!is_dir($markdown_location)) {
+        echo sprintf('Expected GitHub folder missing: %s' . $br, $markdown_location);
         return;
     }
     // is there an assets folder?
-    if(isset($assets_dir)){
-        $markdown_assets_dir = $markdown_location.'/'.$assets_dir;
-        echo 'Looking for Github assets folder.'.$br;
-        $markdown_assets_dir = $markdown_location.'/'.$assets_dir;
-        if (!is_dir($markdown_assets_dir)){
-            echo'Could not find expected markdown assets folder '.$markdown_assets_dir.'.'.$br;
+    if (isset($assets_dir)) {
+        $markdown_assets_dir = $markdown_location . '/' . $assets_dir;
+        echo 'Looking for Github assets folder.' . $br;
+        $markdown_assets_dir = $markdown_location . '/' . $assets_dir;
+        if (!is_dir($markdown_assets_dir)) {
+            echo 'Could not find expected markdown assets folder ' . $markdown_assets_dir . '.' . $br;
             return;
-        }else{
-            echo 'Success, found Github assets folder.'.$br;
+        } else {
+            echo 'Success, found Github assets folder.' . $br;
         }
-    }else{
+    } else {
         // no assets, that is okay
         $markdown_assets_dir = False;
     }
 
+
+}if ($gist_zip_url){
+    echo 'Github Gist URL seen.'.$br;
+    // check for trailing slash, we hate them
+    $trailing_slash = strrpos ( $gist_zip_url ,'/' );
+    if ($trailing_slash = '/'){  // trim trailing slash, we hate these things.
+        $gist_zip_url = substr($gist_zip_url, 0, strlen($gist_zip_url)-1 );
+    }
+    // get the gist ID
+    $url_parts = explode('/', $gist_zip_url);
+    if (!isset($github_agent)){
+        echo '-----user not set';
+        $agent = $github_agent;
+    }else{
+        // get user name from gist, but this should be set...
+        echo 'Agent not set, please fix.'.$br;
+        $agent = $url_parts[3];
+    }
+    $github_username = $url_parts[3];
+    // get gist ID
+    $gist_id = $url_parts[count($url_parts)-1];
+    $gist_base_url = 'https://api.github.com/gists/%s/commits';
+    $gist_commit_json_url = sprintf($gist_base_url, $gist_id);
+    // using curl, let's visit a parallel universe.
+    $ch = curl_init();
+    // build set user agent for GH API. ref: https://developer.github.com/v3/#user-agent-required
+    $user_agent_header = sprintf('User-Agent: %s', $agent);
+    curl_setopt(
+        $ch, CURLOPT_HTTPHEADER, array(
+            $user_agent_header
+        )
+    );
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_URL, $gist_commit_json_url);
+    $result = curl_exec($ch);
+    curl_close($ch);
+
+    $obj = json_decode($result); // key[0] is the most recent if valid
+    // validate response
+    if(gettype($obj) == 'object') {
+        if (property_exists($obj, 'message')) {
+            echo sprintf(
+                'Something went wrong trying to access the url %s.'
+                . $br . 'A message has been returned:'
+                . $br . '%s',
+                $gist_commit_json_url,
+                $obj->message
+            );
+            echo $br;
+            exit('Script Exited');
+        }
+    }
+    // set up for download
+    $download_url_template = 'https://gist.github.com/%s/%s/archive/%s.zip';
+    $download_url = sprintf(
+        $download_url_template,
+        $github_username,
+        $gist_id,
+        $obj[0]->version
+        );
+    $temp_zip = 'temp.zip';
+    $temp_folder = 'temp';
+
+    $gh_zip = file_get_contents($download_url);
+    if (!$gh_zip){
+        echo 'file_get_contents() returned <strong>False</strong>, not able to download url;';
+        echo $br;
+        exit('Script exited.');
+    }
+    // delete on exist
+    if (is_file($temp_zip)) {
+        unlink($temp_zip);
+    }
+    // Try to open / write
+    try {
+        $handle = fopen($temp_zip, 'w') or die('Cannot open file:  ' . $temp_zip);
+        fwrite($handle, $gh_zip);
+    } catch (Exception $e) {
+        echo 'Caught exception: ', $e->getMessage(), $br;
+        return;
+    }
+    // unzip
+    $zip = new ZipArchive;
+    if ($zip->open($temp_zip) === TRUE) {
+        $zip->extractTo($temp_folder);
+        $zip->close();
+        echo 'Zip extraction succeeded.' . $br;
+
+    } else {
+        echo 'Zip extraction failed.' . $br;
+        return;
+    }
+    // Build path to extracted info
+    $markdown_location = $temp_folder . '/' . $gist_id . '-' . $obj[0]->version;
+    // validate
+    if (!is_dir($markdown_location)) {
+        echo sprintf('Expected GitHub folder missing: %s' . $br, $markdown_location);
+        echo $br;
+        exit('Script exited.');
+    }
+    $markdown_assets_dir = $markdown_location;
 }else{
     echo 'Github not set, going local.'.$br;
 }
 
 // Glob all the MD files
+echo '$markdown_location: '.$markdown_location.$br;
 $md_files = array_filter(glob($markdown_location.'/*'), 'is_file');
 
 // validate file presence

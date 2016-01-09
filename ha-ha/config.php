@@ -50,7 +50,7 @@ $assets_dir = 'assets'; // set to False if there are no assets (no images, nuthi
  * LOCAL MARKDOWN USE |
  * -------------------|
  *
- * Note: $github_zip_url must be set to False!!!
+ * Note: $external_zip_url and $gist_zip_url must be set to False!!!
 */
 
 /* Location of the master folder (md files and assets) relative to this script on the file system
@@ -68,15 +68,13 @@ $markdown_location= '../test-data/';
 $sitemap = 'sitemap.html';
 
 
-/* ------------------------|
- * GITHUB OR EXTERNAL FILE |
- * ------------------------|
+/* --------------------------------|
+ * GITHUB OR EXTERNAL FILE or GIST |
+ * --------------------------------|
  *
  * Github is easy and Ha-Ha consumes zip files. They get along great.
  *
- * Note: If $github_zip_url is set local markdown will not be parsed!
- *
- * @todo $github_zip_url set to branch of test data
+ * Note: If $external_zip_url or $gist_zip_url is set local markdown will not be parsed!
  *
  * Does not need to be github, only a zip file that unpacks correctly.
  *
@@ -88,6 +86,12 @@ $sitemap = 'sitemap.html';
  * FQDN required. LAN, intranet use will be tolerated, Windows might be problematic (send feedback please).
 */
 $external_zip_url = False;
+
+// URL for the gist (API call is made for the most recent version)
+// String, format: https://gist.github.com/{username}/{gist-id}/
+$gist_zip_url = False;
+// For the API call github requires a "User-Agent" and it should be your GH user name or the name of an app
+$github_agent = False;  // needed for the API call user agent declaration
 
 // Uncomment next line to test a git based version of this site.
 //$external_zip_url = 'https://github.com/datamafia/ha-ha-web-anti-framework/archive/remote-test-data.zip';
