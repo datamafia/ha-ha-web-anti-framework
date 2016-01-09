@@ -1,5 +1,7 @@
 # Ha-Ha Anti-Framework
 
+_Version 1.1.0_
+
 <img id="haha" src="assets/ha-ha.jpg" title="I am actually not a huge Simpson's fan."/>
 
 <hr />
