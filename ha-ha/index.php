@@ -89,13 +89,14 @@ if ($external_zip_url) {
     echo 'Github Gist URL seen.'.$br;
     // check for trailing slash, we hate them
     $trailing_slash = strrpos ( $gist_zip_url ,'/' );
-    if ($trailing_slash = '/'){  // trim trailing slash, we hate these things.
+
+    if ( strrpos ( $gist_zip_url ,'/' ) - 1 == $trailing_slash){
+        echo 'I SEE TRAILING SLASH';
         $gist_zip_url = substr($gist_zip_url, 0, strlen($gist_zip_url)-1 );
     }
     // get the gist ID
     $url_parts = explode('/', $gist_zip_url);
     if (!isset($github_agent)){
-        echo '-----user not set';
         $agent = $github_agent;
     }else{
         // get user name from gist, but this should be set...
@@ -104,7 +105,12 @@ if ($external_zip_url) {
     }
     $github_username = $url_parts[3];
     // get gist ID
-    $gist_id = $url_parts[count($url_parts)-1];
+    $last_segment = $url_parts[count($url_parts)-1];
+    if ($last_segment == ''){ // accounts for trailing slash creating a false positive
+        $gist_id = $url_parts[count($url_parts)-2];
+    }else{
+        $gist_id = $url_parts[count($url_parts)-1];
+    }
     $gist_base_url = 'https://api.github.com/gists/%s/commits';
     $gist_commit_json_url = sprintf($gist_base_url, $gist_id);
     // using curl, let's visit a parallel universe.
@@ -137,6 +143,10 @@ if ($external_zip_url) {
             exit('Script Exited');
         }
     }
+    // Talk to me
+    echo sprintf('Version: %s', $obj[0]->version).$br;
+    echo sprintf('API URL: %s', $obj[0]->url).$br;
+    echo sprintf('Committed at: %s', $obj[0]->committed_at).$br;
     // set up for download
     $download_url_template = 'https://gist.github.com/%s/%s/archive/%s.zip';
     $download_url = sprintf(
