@@ -21,7 +21,7 @@
                     <a href="/sitemap.html">Sitemap</a>
                 </li>
                 <li>
-                    <a href="/contact.html">Contact</a>
+                    <a href="http://datamafia.com?ref=ha-ha-install">Contact</a>
                 </li>
            </ul>
         </div><!--/.navbar-collapse -->
