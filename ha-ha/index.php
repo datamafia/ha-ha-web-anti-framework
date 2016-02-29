@@ -19,6 +19,8 @@ include 'Parsedown.php';
 
 // Assembly of the assets directory
 $markdown_assets_dir = $markdown_location.$assets_dir;
+$temp_zip = 'temp.zip';
+$temp_folder = 'temp';
 
 // Init a bucket for the creation of all files page. Used to build sitemap
 $all_files_info = [];
