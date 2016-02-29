@@ -86,7 +86,7 @@ if ($external_zip_url) {
 
 
 }if ($gist_zip_url){
-    echo 'Github Gist URL seen.'.$br;
+    printf ('Github Gist URL seen: <a target="_blank" href="%s">%s</a>.', $gist_zip_url, $gist_zip_url);
     // check for trailing slash, we hate them
     $trailing_slash = strrpos ( $gist_zip_url ,'/' );
 
@@ -326,6 +326,37 @@ if($markdown_assets_dir && is_dir($markdown_assets_dir)){
 $created_file_count = $created_file_count+1; // the all files listing
 echo 'Done, created '.$created_file_count.' files (includes the all files listing)'.$br;
 
+// Final clean up of zip and temp files
+if (is_file($temp_zip)) {
+   unlink($temp_zip);
+}
+// Delete all contents of $temp_folder (delete all, make new dir)
+if (is_dir($temp_folder)) {
+    rrmdir($temp_folder);
+}
+
+/**
+ * Delete dir and contents recursively
+ * @param string, path
+ * @return void
+ */
+function rrmdir($dir) {
+    if (!is_dir($dir))return;
+    $skip = ['.','..'];  // skip these
+    foreach(scandir($dir) as $file) {
+        if (in_array($file, $skip)){
+            continue;
+        }
+        if(is_dir($dir.'/'.$file)){
+            rrmdir($dir.'/'.$file);
+        } else{
+            unlink($dir.'/'.$file);
+        }
+    }
+    rmdir($dir);
+}
+
+
 // One more lib I didn't want to write.
 /**
  * Copy a file, or recursively copy a folder and its contents
@@ -370,4 +401,3 @@ function xcopy($source, $dest, $permissions = 0755)
     $dir->close();
     return true;
 }
-
