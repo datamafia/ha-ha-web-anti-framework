@@ -3,6 +3,7 @@
 _Version 1.1.0_
 
 <img id="haha" src="assets/ha-ha.jpg" title="I am actually not a huge Simpson's fan."/>
+<p>Above image is broken, I know, I like it that way.</p>
 
 <hr />
 
@@ -18,7 +19,7 @@ I wrote an Anti-Framework called ```Ha-Ha```. Nothing more than a simple static 
 * Wrap the site in whatever HTML, CSS, or javascript you may want (workable example included)
 * Easy configuration.
 * Demo should be running in minutes.
-* Use GitHub (zip file), <a href="#gist" title="More info on Gist use">Gists (secret or public see</a>), local files, or point to a zip file somewhere else.
+* Use GitHub (zip file), <a href="#gist" title="More info on Gist use">Gists (secret or public</a>), local files, or point to a zip file somewhere else.
 * No database, simple, static, and loved.
 * PHP only used to render HTML files and can be easily concealed or secured.
 * Not object orientated, not even functional, but __procedural!__
